@@ -3,9 +3,9 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Dog
-#from .serializers import DogSerializer
-from rest_framework import status, permissions, renderers
+from .models import Dog, Breed
+from .serializers import DogSerializer, BreedSerializer
+from rest_framework import status, permissions, renderers, viewsets
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from django.contrib.auth import authenticate
 from spyne import Application, rpc, ServiceBase, Integer, Unicode
@@ -15,8 +15,11 @@ from django.views.decorators.csrf import csrf_exempt
 #from .permissions import IsOwner
 from rest_framework import generics
 
+# I imported views from parvious labs, but then decided to research and go with the viewset style which is below
+
+'''
 @api_view(['GET'])
-@permission_classes([permissions.IsAuthenticated])
+#@permission_classes([permissions.IsAuthenticated])
 @renderer_classes([renderers.JSONRenderer])
 def rest_get_dog(request, dog_id):
     try:
@@ -31,7 +34,7 @@ def rest_get_dog(request, dog_id):
 class DogDetailAPIView(generics.RetrieveAPIView):
     queryset = Dog.objects.all()
     serializer_class = DogSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    #permission_classes = [permissions.IsAuthenticated, IsOwner]
     
 
 def authenticate_user(request):
@@ -57,6 +60,7 @@ def authenticate_user(request):
     # Authentication failed
     return None, (401, 'Unauthorized', {'WWW-Authenticate': 'Basic realm="DogService"'})
 
+
 class DogService(ServiceBase):
     @rpc(Integer, _returns=Unicode)
     def get_dog(ctx, dog_id):
@@ -79,3 +83,15 @@ class DogService(ServiceBase):
             return f"Dog: {dog.name}, Age: {dog.age}, Breed: {dog.breed}"
         except Dog.DoesNotExist:
             return "Dog not found."
+'''        
+
+
+
+class DogViewSet(viewsets.ModelViewSet):
+    queryset = Dog.objects.all()
+    serializer_class = DogSerializer
+
+
+class BreedViewSet(viewsets.ModelViewSet):
+    queryset = Breed.objects.all()
+    serializer_class = BreedSerializer
